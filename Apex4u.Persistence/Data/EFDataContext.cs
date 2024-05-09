@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,8 +16,24 @@ namespace Apex4u.Persistence.Data
         DbSet<Stock> Stocks { get; set; }
         DbSet<Warehouse> Warehouses { get; set; }
         DbSet<Variant> Variants { get; set; }
-        
-        public override 
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {  
+            
+            modelBuilder.Entity<Product>()
+                .HasMany(v=>v.Variants).
+                WithOne(p=> p.Product).
+                HasForeignKey(p=>p.ProductID)
+              ;
+            modelBuilder.Entity<Variant>()
+                .HasMany(v => v.Stocks)
+                .WithOne(v => v.Variant)
+                .HasForeignKey(s => s.VariantID);
+            modelBuilder.Entity<Warehouse>()
+                .HasMany(w => w.Stocks)
+                .WithOne(s => s.Warehouse)
+                .HasForeignKey(s => s.WarehouseID);
+        }
 
     }
 }

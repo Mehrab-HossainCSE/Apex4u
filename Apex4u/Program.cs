@@ -1,4 +1,8 @@
 
+using Apex4u.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
 namespace Apex4u
 {
     public class Program
@@ -8,6 +12,13 @@ namespace Apex4u
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            var configuration = new ConfigurationBuilder()
+                  .AddJsonFile("appsettings.json")
+                  .Build();
+
+            // Add services to the container.
+            builder.Services.AddDbContext<EFDataContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("EfPostgresDb")));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
