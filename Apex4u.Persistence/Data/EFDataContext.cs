@@ -12,10 +12,10 @@ namespace Apex4u.Persistence.Data
     public class EFDataContext : DbContext
     {
         public EFDataContext(DbContextOptions<EFDataContext> options) : base(options) { }
-        DbSet<Product> Products { get; set; }
-        DbSet<Stock> Stocks { get; set; }
-        DbSet<Warehouse> Warehouses { get; set; }
-        DbSet<Variant> Variants { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Variant> Variants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {  

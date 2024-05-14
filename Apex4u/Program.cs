@@ -1,7 +1,12 @@
-
-using Apex4u.Persistence.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Apex4u.Persistence.Data;
+using Apex4u.Persistence.Repository;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Apex4u
 {
@@ -12,34 +17,38 @@ namespace Apex4u
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            var configuration = new ConfigurationBuilder()
-                  .AddJsonFile("appsettings.json")
-                  .Build();
-
-            // Add services to the container.
             builder.Services.AddDbContext<EFDataContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("EfPostgresDb")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("EfPostgresDb")));
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+           // builder.Services.AddScoped<IRepository, Repository>(); // Assuming IRepository is implemented by Repository
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "v1" });
+            });
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                });
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
             app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
 
             app.Run();
         }
