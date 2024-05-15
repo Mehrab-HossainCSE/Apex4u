@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Apex4u.Persistence.Data;
 using Apex4u.Persistence.Repository;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Apex4u.Services.Services;
 
 namespace Apex4u
 {
@@ -23,7 +24,7 @@ namespace Apex4u
             builder.Services.AddControllers();
            // builder.Services.AddScoped<IRepository, Repository>(); // Assuming IRepository is implemented by Repository
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
+            builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "v1" });
