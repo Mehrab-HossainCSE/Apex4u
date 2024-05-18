@@ -13,6 +13,6 @@ namespace Apex4u.Services.Services
     public interface IProductService
     {
         Task<Product> GetProductByName(string name);
-        Task<List<ProductDto>> GetAllProduct(ProductFilterDto filter,PaginationDto pagination,string sortBy,bool sortAscending);
+        Task<List<ProductResponseDTO>> GetAllProduct(ProductFilterDto filter,PaginationDto pagination,string sortBy,bool sortAscending);
     }
 }

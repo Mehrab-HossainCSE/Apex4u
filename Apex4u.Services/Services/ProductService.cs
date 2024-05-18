@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 
 namespace Apex4u.Services.Services
 {
-    public class ProductService: IProductService
+    public class ProductService : IProductService
     {
-        string productKey = "productBasekey.";
         private readonly IRepository<Product> _repository;
 
         public ProductService(IRepository<Product> repository)
@@ -21,12 +20,11 @@ namespace Apex4u.Services.Services
 
         public async Task<Product> GetProductByName(string name)
         {
-
-          var product= await _repository.GetProductBySearchNameAsync(name);
-            return product;
+            var query = await _repository.GetProductsAsync();
+            return await query.Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefaultAsync();
         }
 
-        public async Task<List<ProductDto>> GetAllProduct(ProductFilterDto filter, PaginationDto pagination, string sortBy, bool sortAscending)
+        public async Task<List<ProductResponseDTO>> GetAllProduct(ProductFilterDto filter, PaginationDto pagination, string sortBy, bool sortAscending)
         {
             // Get IQueryable<Product> from your repository
             var query = await _repository.GetProductsAsync();
@@ -51,23 +49,22 @@ namespace Apex4u.Services.Services
 
             if (!string.IsNullOrWhiteSpace(filter.VariantColor))
             {
-                query = query.Where(p => p.Variants.Any(v => v.Color == filter.VariantColor));
+                query = query.Where(p => p.Variants.Any(v => v.Color.ToLower() == filter.VariantColor.ToLower()));
             }
 
             if (!string.IsNullOrWhiteSpace(filter.VariantSize))
             {
-                query = query.Where(p => p.Variants.Any(v => v.Size == filter.VariantSize));
+                query = query.Where(p => p.Variants.Any(v => v.Size.ToLower() == filter.VariantSize.ToLower()));
             }
 
             if (!string.IsNullOrWhiteSpace(filter.WarehouseName))
             {
-                query = query.Where(p => p.Variants.Any(v => v.Stocks.Any(s => s.Warehouse.Name == filter.WarehouseName)));
+                query = query.Where(p => p.Variants.Any(v => v.Stocks.Any(s => s.Warehouse.Name.ToLower() == filter.WarehouseName.ToLower())));
             }
-
 
             if (!string.IsNullOrWhiteSpace(filter.ProductName))
             {
-                query = query.Where(p => p.Name.Contains(filter.ProductName));
+                query = query.Where(p => p.Name.ToLower().Contains(filter.ProductName.ToLower()));
             }
 
             // Apply sorting
@@ -91,20 +88,24 @@ namespace Apex4u.Services.Services
                                       .Take(pagination.PageSize)
                                       .ToListAsync();
 
-            // Map Product entities to ProductDto objects
-            var productDtos = products.Select(product => new ProductDto
+            // Map Product entities to ProductResponseDTO objects
+            var productDtos = products.Select(product => new ProductResponseDTO
             {
-                // Map properties manually
-                ProductID = product.ProductID,
-                Name = product.Name,
+                ProductName = product.Name,
                 InStock = product.Variants.Any(v => v.Stocks.Any(s => s.Quantity > 0)),
-                VariantColor = product.Variants.Select(v => v.Color).FirstOrDefault(),
-                VariantSize = product.Variants.Select(v => v.Size).FirstOrDefault(),
-               
+                Variants = product.Variants.Select(v => new VariantDTO
+                {
+                    Color = v.Color,
+                    Size = v.Size,
+                    WarehouseStocks = v.Stocks.Select(s => new WarehouseStockDTO
+                    {
+                        WarehouseName = s.Warehouse.Name,
+                        Quantity = s.Quantity
+                    }).ToList()
+                }).ToList()
             }).ToList();
 
             return productDtos;
         }
-
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Apex4u.DTO;
-
 using Apex4u.Persistence.Models;
-using Apex4u.Persistence.Repository;
+using Apex4u.Services.DTO;
 using Apex4u.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -20,9 +19,9 @@ namespace Apex4u.Api.Controllers
             _productRepository = productRepository;
         }
 
-        [HttpGet("api/products/{searchEngineFriendlyName}")]
+        [HttpGet("search/{searchEngineFriendlyName}")]
         public async Task<ActionResult<Product>> GetProductBySearchEngineFriendlyName(string searchEngineFriendlyName)
-        { 
+        {
             var product = await _productRepository.GetProductByName(searchEngineFriendlyName);
             if (product == null)
             {
@@ -30,8 +29,9 @@ namespace Apex4u.Api.Controllers
             }
             return product;
         }
-        [HttpGet("{allproduct}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<ProductResponseDTO>>> GetProducts(
              [FromQuery] bool? inStock,
              [FromQuery] string variantColor,
              [FromQuery] string variantSize,
@@ -49,7 +49,6 @@ namespace Apex4u.Api.Controllers
                 VariantSize = variantSize,
                 WarehouseName = warehouseName,
                 ProductName = productName,
-              // pageSize = pageSize,
             };
 
             var pagination = new PaginationDto
@@ -61,9 +60,5 @@ namespace Apex4u.Api.Controllers
             var products = await _productRepository.GetAllProduct(filter, pagination, sortBy, sortAscending);
             return Ok(products);
         }
-
-
-
-
     }
 }

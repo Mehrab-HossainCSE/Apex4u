@@ -9,7 +9,7 @@ namespace Apex4u.Persistence.Repository
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> GetProductBySearchNameAsync(string searchEngineFriendlyName);
+       // Task<IQueryable<T>> GetProductBySearchNameAsync();
         //Task<IEnumerable<T>> GetProductsAsync(ProductFilterDto filter, PaginationDto pagination,string sortAscending, bool sortBy);
         Task<IQueryable<T>> GetProductsAsync();
     }

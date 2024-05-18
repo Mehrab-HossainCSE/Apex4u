@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Apex4u.Persistence.Repository
 {
-    public class Repository<T> : IRepository<Product>
+    public class Repository<T> : IRepository<T> where T : class
     {
         private readonly EFDataContext _dbContext;
 
@@ -13,13 +13,13 @@ namespace Apex4u.Persistence.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<Product> GetProductBySearchNameAsync(string searchEngineFriendlyName)
+        //public async Task<IEnumerable> GetProductBySearchNameAsync(string searchEngineFriendlyName)
+        //{
+        //    return _dbContext.Set<T>().AsQueryable();
+        //}
+        public async Task<IQueryable<T>> GetProductsAsync()
         {
-            return await _dbContext.Products.FirstOrDefaultAsync(p => p.Name == searchEngineFriendlyName);
-        }
-        public async Task<IQueryable<Product>> GetProductsAsync()
-        {
-            return _dbContext.Products.AsQueryable();
+            return _dbContext.Set<T>().AsQueryable();
             
 
 

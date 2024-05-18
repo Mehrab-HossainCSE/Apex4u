@@ -1,6 +1,6 @@
 ﻿namespace Apex4u.Services.DTO
 {
-    public class ProductDto
+    public class ProductRequestDTO
     {
         public int ProductID { get; set; } // Primary Key
         public string Name { get; set; }
